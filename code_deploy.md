@@ -1,23 +1,33 @@
 
-Design a fast, global code deployment system.
+Design a global code deployment system.
 
 # Overview
 
 ![deploy_arch](diagrams/deploy_arch.png)
 
+
+Definitions
+* Target: A single build target in the repository. A target can be built to generate a build artifact (executable/library). It is identified by a path of the form `//folder/subfolder:name`
+* Artifact: A target built at a particular commit.
+* Zone: A single datacenter within a geographical area. e.g. us-east-1
+* Cluster: A set of machines within a single zone.
+* Job: A program running on a cluster. A job may have multiple processes running across multiple hosts.
+* JobSpec: A specification for a job. Consists of a target and a set of resource requirements.
+* Task: A single process running as part of a job.
+* Pipeline: An abstraction for deploying software in a sequence of stages.
+* Pipeline schema: A specification for a pipeline. Consists of a sequence of stages. Each stage has a type and parameters. Stages may depend on other stages. (e.g. "stage 1: run tests" "stage 2: deploy to us-east-1 after tests pass")
+
+## Build System
+
+![build_system](diagrams/deploy_build.png)
+
+The build system generates artifacts for each commit. These artifacts can then be retrieved by cluster hosts when a job is deployed.
+
 ## Clusters
 
 ![deploy_cluster](diagrams/deploy_cluster.png)
 
-* A cluster is set of machines in a zone. 
-* A cluster is managed by a cluster manager.
-* Clusters execute jobs. A job consists of a set of tasks. Each task is a process running on a host.
-* A job is defined by a JobSpec.
-* A JobSpec contains a target and resource requirements
-* A target is a tuple containing a commit hash and a build target. e.g. "master://foo_service:main"
-* Resource requirements include things like the number of hosts, networking, compute, storage capacity, etc.
-* A task daemon on each host manages tasks. It provides a task management API used by the cluster manager and notifies the cluster manager of state changes.
-* A separate monitoring job keeps tabs on running tasks and notifies the cluster manager of failures
+Clusters run jobs. The cluster manager provides an API to configure jobs. It deploys tasks to hosts based on the JobSpec. Each host runs a task daemon which monitors tasks and handles requests from the manager. When a task daemon receives a task, it fetches the target artifact from the artifact store, starts the task, then notifies the manager of the task state changes. A separate monitoring job keeps tabs on running tasks and notifies the manager of failures.
 
 ```
 Job URLs identify jobs
@@ -74,17 +84,6 @@ table Tasks (
 ## Deployment Pipelines
 
 ![deploy_pipelines](diagrams/deploy_pipelines.png)
-
-* A deployment pipeline is an abstraction for deploying software in a sequence of stages.
-* Each pipeline has a schema describing the pipeline structure
-* A schema is a DAG of nodes. Each node has a unique name, a type, a spec, and upstream dependencies.
-  * Example: "run integration tests", "deploy this target to us-east-1 after the tests run", etc.
-* Pipelines are triggered by code builds, deployment schedules, or manual deployment actions.
-* Pipelines are deployed as a DAG of actions generated from the schema.
-* Actions are placed in a queue. Action runner executes the actions by determining what to do, calling any external services, waiting until the action is complete (via polling or notifications), and queuing the next actions to perform.
-* Long-running actions like deployments can be executed as a sequence of actions. Example: start the deployment, then poll the deployment state every 30 seconds until the the deployment is complete. The action runner could also subscribe to other systems' notifications to update action state without polling.
-* The pipelines UI provides a way to edit and view pipelines.
-* Pipelines service provides the pipeline status to the UI. Some status items are stored in pipelines tables (e.g. when this deployment finished). Other status items may be fetched from downstream services (e.g. whether a job is currently healthy). Some may be cached.
 
 ### Example Pipeline Schema
 ```
