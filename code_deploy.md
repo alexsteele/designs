@@ -27,7 +27,7 @@ The build system generates artifacts for each commit. These artifacts can then b
 
 ![deploy_cluster](diagrams/deploy_cluster.png)
 
-Clusters run jobs. The cluster manager provides an API to configure jobs. It deploys tasks to hosts based on the JobSpec. Each host runs a task daemon which monitors tasks and handles requests from the manager. When a task daemon receives a task, it fetches the target artifact from the artifact store, starts the task, then notifies the manager of the task state changes. A separate monitoring job keeps tabs on running tasks and notifies the manager of failures.
+Clusters run jobs. Each cluster is managed by a cluster manager. The manager provides an API to configure and submit jobs. Jobs are defined by a JobSpec and executed as a collection of tasks running on worker host. Each host runs a task daemon which monitors tasks and handles requests from the manager. When a task daemon receives a task, it fetches the target artifact from the artifact store, starts the task, then notifies the manager of the task state changes. A separate monitoring job keeps tabs on running tasks and notifies the manager of failures.
 
 ```
 Job URLs identify jobs
