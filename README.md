@@ -8,6 +8,6 @@ design exercises, notes, and diagrams.
 * [eCommerce](ecommerce.md)
 * [Job Server](jobserver.md)
 * [Maps](maps.md)
-* [Realtime Notifcations](realtime.md)
+* [Realtime Notifications](realtime.md)
 * [Social Network](socialnet.md)
 * [Web Docs](webdocs.md)
