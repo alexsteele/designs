@@ -4,15 +4,13 @@ Design an eCommerce site.
 
 ## Features
 
-Users can do the standard stuff:
-
+* Search products
 * View product info
-* Search for products
+* Purchase products
 * Browse by category
 * Recommendations
-* Purchase items
-* View their purchases
-* etc. etc.
+* View recent purchases
+* etc.
 
 ## Overview
 
